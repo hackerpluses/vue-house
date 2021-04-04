@@ -16,9 +16,9 @@
 
       <el-table-column align="center" label="操作" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button v-permission="['POST /admin/role/update']" type="primary" size="mini" @click="handleUpdate(scope.row)">编辑</el-button>
-          <el-button v-permission="['POST /admin/role/delete']" type="danger" size="mini" @click="handleDelete(scope.row)">删除</el-button>
-          <el-button v-permission="['GET /admin/role/permissions']" type="primary" size="mini" @click="handlePermission(scope.row)">授权</el-button>
+          <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">编辑</el-button>
+          <el-button type="danger" size="mini" @click="handleDelete(scope.row)">删除</el-button>
+          <el-button type="primary" size="mini" @click="handlePermission(scope.row)">授权</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -37,7 +37,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取消</el-button>
-        <el-button v-if="dialogStatus=='create'" type="primary" @click="createData">确定</el-button>
+        <el-button v-if="dialogStatus==='create'" type="primary" @click="createData">确定</el-button>
         <el-button v-else type="primary" @click="updateData">确定</el-button>
       </div>
     </el-dialog>
@@ -204,7 +204,7 @@ export default {
     },
     handleDelete(row) {
       deleteRole(row)
-        .then(response => {
+        .then(() => {
           this.$notify.success({
             title: '成功',
             message: '删除管理员成功'
@@ -230,7 +230,7 @@ export default {
     updatePermission() {
       this.permissionForm.permissions = this.$refs.tree.getCheckedKeys(true)
       updatePermission(this.permissionForm)
-        .then(response => {
+        .then(() => {
           this.permissionDialogFormVisible = false
           this.$notify.success({
             title: '成功',

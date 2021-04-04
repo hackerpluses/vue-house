@@ -5,9 +5,9 @@
         <span />
         <el-button class="filter-item" style="float: right;margin-top: -8px;margin-right: 10px;" type="primary" icon="el-icon-refresh" size="mini" @click="searchReset">重置</el-button>
         <el-button class="danger" type="primary" size="mini" icon="el-icon-search" style="float: right;margin-top: -8px;margin-right: 10px;" @click="query">搜索</el-button>
-        <el-input v-model="keywordsOfTheme" placeholder="请输入考核主题查找" size="mini" style="float: right;margin-top: -8px;margin-right: 10px;width:200px;" />
+        <el-input v-model="listQuery.theme" placeholder="请输入考核主题查找" size="mini" style="float: right;margin-top: -8px;margin-right: 10px;width:200px;" />
         <el-select
-          v-model="keywordsOfType"
+          v-model="listQuery.type"
           placeholder="请选择试题类型"
           size="mini"
           style="float: right;margin-top: -8px;margin-right: 10px;width:200px;"
@@ -20,7 +20,7 @@
           />
         </el-select>
         <el-select
-          v-model="keywordsOfDegree"
+          v-model="listQuery.degree"
           placeholder="请选择试题等级"
           size="mini"
           style="float: right;margin-top: -8px;margin-right: 10px;width:200px;"
@@ -76,19 +76,9 @@
             </template>
           </el-table-column>
         </el-table>
-        <!--分页begin-->
-        <el-pagination
-          background
-          class="page"
-          :current-page="filter.page"
-          :page-sizes="[10, 20, 50,100]"
-          :page-size="filter.per_page"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="totaltest"
-          @size-change="pageSizeChange"
-          @current-change="pageCurrentChange"
-        />
-        <!--分页end-->
+
+        <pagination v-show="totalTest>0" :total="totalTest" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getTestDataByPage" />
+
       </div>
     </el-card>
     <!--新增/编辑弹框-->
@@ -204,8 +194,8 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="danger" size="small" @click="viewOptionVisible=false">取消</el-button>
-        <el-button v-if="optiondialogStatus=='create'" type="success" size="small" :loading="addloading" @click="addOption()">确定</el-button>
-        <el-button v-if="optiondialogStatus=='update'" type="success" size="small" :loading="addloading" @click="editOption()">确定</el-button>
+        <el-button v-if="optiondialogStatus==='create'" type="success" size="small" :loading="addloading" @click="addOption()">确定</el-button>
+        <el-button v-if="optiondialogStatus==='update'" type="success" size="small" :loading="addloading" @click="editOption()">确定</el-button>
       </div>
     </el-dialog>
     <!--查看试题-->
@@ -287,10 +277,11 @@
 import { searchExercise, updateExercise, addExercise, deleteExercise } from '@/api/exercise'
 import { uploadPath } from '@/api/storage'
 import { getToken } from '@/utils/auth'
+import Pagination from '@/components/Pagination'
 
 export default {
   name: 'TestBank',
-
+  components: { Pagination },
   data() {
     return {
       currentImage: '',
@@ -302,11 +293,17 @@ export default {
       selected: [
       ], // 已选择项
       ids: '',
-      keywordsOfType: '',
-      keywordsOfDegree: '',
-      keywordsOfTheme: '',
+      listQuery: {
+        type: '',
+        degree: '',
+        theme: '',
+        page: 1,
+        size: 20,
+        sort: 'insert_time',
+        order: 'desc'
+      },
       forbidden: false,
-      totaltest: '',
+      totalTest: '',
       testdata: [],
       totalCount: [],
       loading: true,
@@ -420,13 +417,13 @@ export default {
     // 获取试题库列表
     getTestDataByPage() {
       this.loading = true
-      const params = { type: this.keywordsOfType, degree: this.keywordsOfDegree, theme: this.keywordsOfTheme, currentpage: this.filter.page, size: this.filter.per_page }
+      const params = this.listQuery
       searchExercise(params).then(response => { // 请求成功
         console.log(response.data.items)
         this.testdata = response.data.records
-        this.totaltest = response.data.total
+        this.totalTest = response.data.total
         this.loading = false
-      }).catch(response => { // 请求失败
+      }).catch(() => { // 请求失败
         this.$message.error('错误请求')
         this.loading = false
       }) // 获取访问记录
@@ -485,13 +482,8 @@ export default {
       this.temp.picUrl = ''// 64位图可以直接清空
       this.fileList = []
     },
-
-    changeLoading(file, fileList) {
-      if (this.Loading === false) {
-        this.Loading = true
-      } else {
-        this.Loading = false
-      }
+    changeLoading() {
+      this.Loading = this.Loading === false;
     },
     uploadOnProgress(e, file) { // 开始上传的进度
       console.log(e.percent, file)
@@ -595,7 +587,7 @@ export default {
         this.$refs.temp.validate((valid) => {
           if (valid) {
             updateExercise(this.temp).then(
-              res => { // 请求成功
+              () => { // 请求成功
                 this.$message.success({ message: '修改试题成功！', center: true })
                 this.dialogFormVisible = false
                 this.resetTemp()
@@ -667,7 +659,7 @@ export default {
             this.$message.error({ message: '删除试题失败！您没有该操作权限', center: true })
           })
         })
-          .catch((res) => {
+          .catch(() => {
             this.$message.info('已取消操作!')
           })
       }
@@ -768,10 +760,10 @@ export default {
     line-height: 33px;
   }
   .el-table td{
-    padding:0px;
+    padding:0;
   }
   .el-table th{
-    padding:0px;
+    padding:0;
   }
   /*myTable样式*/
   table{

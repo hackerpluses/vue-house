@@ -1,151 +1,101 @@
 <template>
-  <div>
-    <div style="margin-top: 15px;float:right">
-      <el-input v-model="input3" placeholder="请输入内容" class="input-with-select">
+  <div class="app-container">
+
+    <!-- 查询和其他操作 -->
+    <div style="width:600px;display:flex;margin-bottom:20px;">
+      <el-input v-model="filterText" placeholder="请输入内容" class="input-with-select">
         <el-select slot="prepend" v-model="select" placeholder="请选择" style="width:130px">
-          <el-option label="顾客姓名" value="3" />
-          <el-option label="顾客id" value="5" />
+          <el-option label="用户id" value="1" />
+          <el-option label="用户姓名" value="2" />
+          <el-option label="手机号" value="3" />
         </el-select>
-        <el-button slot="append" icon="el-icon-search" @click="handleSearch" />
+        <el-button slot="append" type="primary" icon="el-icon-search" @click="handleSearch" />
       </el-input>
+      <el-button type="primary" @click="handleAddressAdd">添加用户地址</el-button>
     </div>
-    <el-table
-      :data="tableData"
-      :default-sort="{prop: 'date', order: 'descending'}"
-      stripe
-      style="width: 100%; height: 100%"
-    >
-      <el-table-column
-        fixed
-        prop="id"
-        label="id"
-        width="150"
-      />
-      <el-table-column
-        fixed
-        prop="date"
-        sortable
-        label="顾客名称"
-        width="150"
-      />
-      <el-table-column
-        prop="name"
-        label="顾客id"
-        width="120"
-      />
-      <el-table-column
-        prop="name"
-        label="省"
-        width="120"
-      />
-      <el-table-column
-        prop="province"
-        label="市"
-        width="120"
-      />
-      <el-table-column
-        prop="city"
-        label="区县"
-        width="auto"
-      />
-      <el-table-column
-        prop="city"
-        label="详细地址"
-        width="auto"
-      />
-      <el-table-column
-        fixed="right"
-        label="操作"
-        width="180"
-      >
+
+    <!-- 查询结果 -->
+    <el-table v-loading="listLoading" :data="list" element-loading-text="正在查询中。。。" border fit highlight-current-row>
+      <el-table-column align="center" width="100px" label="地址ID" prop="id" sortable />
+
+      <el-table-column align="center" min-width="100px" label="用户ID" prop="userId" />
+
+      <el-table-column align="center" min-width="100px" label="用户姓名" prop="name" />
+
+      <el-table-column align="center" min-width="100px" label="手机号码" prop="tel" />
+
+      <el-table-column align="center" min-width="300px" label="区域地址">
         <template slot-scope="scope">
-          <el-button
-            size="mini"
-            @click="handleEdit(scope.$index, scope.row)"
-          >编辑</el-button>
-          <el-button
-            size="mini"
-            type="danger"
-            @click="handleDelete(scope.$index, scope.row)"
-          >删除</el-button>
+          {{ scope.row.province + scope.row.city + scope.row.county }}
         </template>
       </el-table-column>
+
+      <el-table-column align="center" min-width="300px" label="详细地址" prop="addressDetail" />
+
+      <el-table-column align="center" min-width="80px" label="默认" prop="isDefault">
+        <template slot-scope="scope">
+          {{ scope.row.isDefault ? '是' : '否' }}
+        </template>
+      </el-table-column>
+
     </el-table>
+
+    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
+
   </div>
 </template>
 
 <script>
+import { getAddressList } from '@/api/customer'
+import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
+
 export default {
-  name: 'Address',
+  name: 'EmployeeAddress',
+  components: { Pagination },
   data() {
     return {
-      tableData: [{
-        date: '2016-05-03',
-        name: '王小虎',
-        province: '上海',
-        city: '普陀区',
-        address: '上海市普陀区金沙江路 1518 弄',
-        zip: 200333
-      }, {
-        date: '2016-05-02',
-        name: '王小虎',
-        province: '上海',
-        city: '普陀区',
-        address: '上海市普陀区金沙江路 1518 弄',
-        zip: 200333
-      }, {
-        date: '2016-05-04',
-        name: '王小虎',
-        province: '上海',
-        city: '普陀区',
-        address: '上海市普陀区金沙江路 1518 弄',
-        zip: 200333
-      }, {
-        date: '2016-05-01',
-        name: '王小虎',
-        province: '上海',
-        city: '普陀区',
-        address: '上海市普陀区金沙江路 1518 弄',
-        zip: 200333
-      }, {
-        date: '2016-05-08',
-        name: '王小虎',
-        province: '上海',
-        city: '普陀区',
-        address: '上海市普陀区金沙江路 1518 弄',
-        zip: 200333
-      }, {
-        date: '2016-05-06',
-        name: '王小虎',
-        province: '上海',
-        city: '普陀区',
-        address: '上海市普陀区金沙江路 1518 弄',
-        zip: 200333
-      }, {
-        date: '2016-05-07',
-        name: '王小虎',
-        province: '上海',
-        city: '普陀区',
-        address: '上海市普陀区金沙江路 1518 弄',
-        zip: 200333
-      }],
-      input3: '',
+      list: null,
+      total: 0,
+      listLoading: true,
+      listQuery: {
+        page: 1,
+        limit: 20,
+        name: undefined,
+        userId: undefined,
+        sort: 'insert_time',
+        order: 'desc'
+      },
+      downloadLoading: false,
+      filterText: '',
       select: '1'
     }
   },
+  created() {
+    this.getList()
+  },
   methods: {
-    handleDelete(index, rows) {
-      rows.splice(index, 1)
+    getList() {
+      this.listLoading = true
+      getAddressList(this.listQuery).then(response => {
+        this.list = response.data.list
+        this.total = response.data.total
+        this.listLoading = false
+      }).catch(() => {
+        this.list = []
+        this.total = 0
+        this.listLoading = false
+      })
     },
-    handleSearch() {
-      console.log(this.input3, this.select)
+    handleFilter() {
+      this.listQuery.page = 1
+      this.getList()
+    },
+    handleAddressAdd() {
+      this.$notify.error({
+        title: '失败',
+        message: '暂时不支持，需要用户在移动端自行添加'
+      })
     }
   }
 }
 </script>
-
-<style scoped>
-.input-with-select .el-input-group__prepend {
-  background-color: #fff;
-}
-</style>

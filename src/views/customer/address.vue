@@ -91,7 +91,10 @@ export default {
       this.getList()
     },
     handleAddressAdd() {
-      console.log('暂时不支持')
+      this.$notify.error({
+        title: '失败',
+        message: '暂时不支持，需要用户在移动端自行添加'
+      })
     }
   }
 }

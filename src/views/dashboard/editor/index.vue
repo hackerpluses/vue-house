@@ -5,14 +5,14 @@
         Your roles:
         <span v-for="item in roles" :key="item" class="pan-info-roles">{{ item }}</span>
       </pan-thumb>
-      <github-corner style="position: absolute; top: 0px; border: 0; right: 0;" />
+      <github-corner style="position: absolute; top: 0; border: 0; right: 0;" />
       <div class="info-container">
         <span class="display_name">{{ name }}</span>
-        <span style="font-size:20px;padding-top:20px;display:inline-block;">Editor's Dashboard</span>
+        <span style="font-size:20px;padding-top:20px;display:inline-block;">暂时不开放给你</span>
       </div>
     </div>
     <div>
-      <img :src="emptyGif" class="emptyGif">
+      <img :src="emptyGif" alt="无" class="emptyGif">
     </div>
   </div>
 </template>
@@ -50,7 +50,7 @@ export default {
   .dashboard-editor-container {
     background-color: #e3e3e3;
     min-height: 100vh;
-    padding: 50px 60px 0px;
+    padding: 50px 60px 0;
     .pan-info-roles {
       font-size: 12px;
       font-weight: 700;

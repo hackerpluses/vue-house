@@ -107,24 +107,40 @@ export const constantRoutes = [
  */
 export const asyncRoutes = [
   {
-    path: '/person',
+    path: '/system',
     component: Layout,
-    redirect: '/person/admin',
+    redirect: '/system/admin',
     alwaysShow: true,
-    name: 'person',
-    meta: { title: '人员管理', icon: 'el-icon-s-help', roles: ['超级管理员', 'editor'] },
+    name: 'system',
+    meta: { title: '系统管理', icon: 'peoples', roles: ['超级管理员', 'editor'] },
     children: [
       {
         path: 'admin',
         name: 'admins',
-        component: () => import('@/views/person/admin'),
+        component: () => import('@/views/system/admin'),
         meta: { title: '管理员', icon: 'table', roles: ['超级管理员'] }
       },
       {
         path: 'employee',
         name: 'employees',
-        component: () => import('@/views/person/employee'),
+        component: () => import('@/views/system/employee'),
         meta: { title: '雇员', icon: 'tree', roles: ['超级管理员', 'editor'] }
+      },
+      {
+        path: 'os',
+        name: 'os',
+        component: () => import('@/views/system/os'),
+        meta: { title: '储存', icon: 'tree', roles: ['超级管理员', 'editor'] }
+      },
+      {
+        path: 'role',
+        component: () => import('@/views/system/role'),
+        name: 'RolePermission',
+        meta: {
+          title: '管理种类',
+          icon: 'table',
+          roles: ['超级管理员']
+        }
       }
     ]
   },
@@ -135,7 +151,7 @@ export const asyncRoutes = [
     redirect: '/employee/index',
     alwaysShow: true,
     name: 'employee',
-    meta: { title: '雇员服务信息', icon: 'stat' },
+    meta: { title: '雇员管理', icon: 'people' },
     children: [
       {
         path: 'index',
@@ -147,29 +163,20 @@ export const asyncRoutes = [
         }
       },
       {
-        path: 'comment',
-        component: () => import('@/views/employee/comment'),
-        name: 'employee-comment',
-        meta: {
-          title: '雇员评价',
-          noCache: true
-        }
-      },
-      {
-        path: 'footprint',
-        component: () => import('@/views/employee/footprint'),
-        name: 'employee-footprint',
-        meta: {
-          title: '雇员足迹',
-          noCache: true
-        }
-      },
-      {
         path: 'address',
         component: () => import('@/views/employee/address'),
         name: 'employee-address',
         meta: {
           title: '雇员住址',
+          noCache: true
+        }
+      },
+      {
+        path: 'feedback',
+        component: () => import('@/views/employee/feedback'),
+        name: 'employee-feedback',
+        meta: {
+          title: '雇员反馈',
           noCache: true
         }
       },
@@ -191,7 +198,7 @@ export const asyncRoutes = [
     redirect: '/customer/index',
     alwaysShow: true,
     name: 'custom',
-    meta: { title: '用户管理', icon: 'stat' },
+    meta: { title: '用户管理', icon: 'people' },
     children: [
       {
         path: 'index',
@@ -213,6 +220,15 @@ export const asyncRoutes = [
       },
       {
         path: 'comment',
+        component: () => import('@/views/customer/comment'),
+        name: 'customer-comment',
+        meta: {
+          title: '用户评价',
+          noCache: true
+        }
+      },
+      {
+        path: 'feedback',
         component: () => import('@/views/customer/feedback'),
         name: 'customer-feedback',
         meta: {
@@ -255,7 +271,7 @@ export const asyncRoutes = [
     component: Layout,
     redirect: '/order/index',
     name: 'order',
-    meta: { title: '订单管理', icon: 'el-icon-s-help' },
+    meta: { title: '订单管理', icon: 'money' },
     children: [
       {
         path: 'index',
@@ -335,10 +351,25 @@ export const asyncRoutes = [
   },
 
   {
+    path: '/resource',
+    name: 'resource',
+    component: Layout,
+    children: [
+      {
+        path: 'log',
+        component: () => import('@/views/resource/index'),
+        name: 'ErrorLog',
+        meta: { title: '资源管理', icon: 'star' }
+      }
+    ]
+  },
+
+  {
     path: '/permission',
     component: Layout,
     redirect: '/permission/page',
     alwaysShow: true, // will always show the root menu
+    hidden: true,
     name: 'Permission',
     meta: {
       title: '权限测试',
@@ -363,15 +394,6 @@ export const asyncRoutes = [
           title: 'Directive Permission'
           // if do not set roles, means: this page does not require permission
         }
-      },
-      {
-        path: 'role',
-        component: () => import('@/views/permission/role'),
-        name: 'RolePermission',
-        meta: {
-          title: '角色管理',
-          roles: ['超级管理员']
-        }
       }
     ]
   },
@@ -381,6 +403,7 @@ export const asyncRoutes = [
     component: Layout,
     redirect: 'noRedirect',
     name: 'ErrorPages',
+    hidden: true,
     meta: {
       title: '错误页面',
       icon: '404'
@@ -426,12 +449,12 @@ export const asyncRoutes = [
     },
     children: [
       {
-        path: 'https://www.baidu.com',
-        meta: { title: '百度', icon: 'link' }
+        path: 'https://tieba.baidu.com/f?kw=%BC%D2%D5%FE&fr=ala0&tpl=5',
+        meta: { title: '家政贴吧', icon: 'link' }
       },
       {
-        path: 'https://cloud.tencent.com/product/sms',
-        meta: { title: '腾讯云短信', icon: 'link' }
+        path: 'https://baike.baidu.com/item/%E5%AE%B6%E6%94%BF/2605587?fr=aladdin',
+        meta: { title: '家政百科', icon: 'link' }
       }
     ]
   },

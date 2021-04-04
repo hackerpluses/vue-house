@@ -3,18 +3,20 @@
 
     <!-- 查询和其他操作 -->
     <div class="filter-container">
-      <el-input v-model="listQuery.id" clearable class="filter-item" style="width: 200px;" placeholder="请输入问题" />
+      <el-input v-model="listQuery.id" clearable class="filter-item" style="width: 200px;" placeholder="请输入资源" />
       <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">查找</el-button>
       <el-button class="filter-item" type="primary" icon="el-icon-edit" @click="handleCreate">添加</el-button>
     </div>
 
     <!-- 查询结果 -->
-    <el-table v-loading="listLoading" :data="list" element-loading-text="正在查询中。。。" border fit highlight-current-row>
-      <el-table-column align="center" width="100px" label="问题ID" prop="id" sortable />
+    <el-table v-loading="listLoading" :data="list" element-loading-text="疯狂加载中" border fit highlight-current-row>
+      <el-table-column align="center" width="100px" label="资源ID" prop="id" sortable />
 
-      <el-table-column align="center" min-width="200px" label="问题内容" prop="question" />
+      <el-table-column align="center" min-width="200px" label="资源名称" prop="question" />
 
-      <el-table-column align="center" min-width="400px" label="问题回复" prop="answer" />
+      <el-table-column align="center" min-width="200px" label="资源链接" prop="question" />
+
+      <el-table-column align="center" min-width="400px" label="资源描述" prop="answer" />
 
       <el-table-column align="center" label="操作" width="250" class-name="small-padding fixed-width">
         <template slot-scope="scope">
@@ -29,10 +31,13 @@
     <!-- 添加或修改对话框 -->
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" :rules="rules" :model="dataForm" status-icon label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
-        <el-form-item label="问题" prop="question">
+        <el-form-item label="资源名称" prop="question">
           <el-input v-model="dataForm.question" />
         </el-form-item>
-        <el-form-item label="回复" prop="answer">
+        <el-form-item label="资源链接" prop="answer">
+          <el-input v-model="dataForm.answer" :rows="8" type="textarea" placeholder="请输入内容" />
+        </el-form-item>
+        <el-form-item label="资源描述" prop="answer">
           <el-input v-model="dataForm.answer" :rows="8" type="textarea" placeholder="请输入内容" />
         </el-form-item>
       </el-form>
@@ -51,7 +56,7 @@ import { getIssueList, createIssue, updateIssue, deleteIssue } from '@/api/issue
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 
 export default {
-  name: 'Issue',
+  name: 'Index',
   components: { Pagination },
   data() {
     return {
@@ -77,9 +82,10 @@ export default {
         create: '创建'
       },
       rules: {
-        question: [{ required: true, message: '问题不能为空', trigger: 'blur' }],
-        answer: [{ required: true, message: '回复不能为空', trigger: 'blur' }]
-      }
+        question: [{ required: true, message: '不能为空', trigger: 'blur' }],
+        answer: [{ required: true, message: '不能为空', trigger: 'blur' }]
+      },
+      downloadLoading: false
     }
   },
   created() {
@@ -148,12 +154,18 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           updateIssue(this.dataForm).then(() => {
+            for (const v of this.list) {
+              if (v.id === this.dataForm.id) {
+                const index = this.list.indexOf(v)
+                this.list.splice(index, 1, this.dataForm)
+                break
+              }
+            }
             this.dialogFormVisible = false
             this.$notify.success({
               title: '成功',
               message: '更新成功'
             })
-            this.getList()
           }).catch(response => {
             this.$notify.error({
               title: '失败',

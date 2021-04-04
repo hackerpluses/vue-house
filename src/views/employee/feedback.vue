@@ -1,13 +1,83 @@
 <template>
-  <div></div>
+  <div class="app-container">
+
+    <!-- 查询和其他操作 -->
+    <div class="filter-container">
+      <el-input v-model="listQuery.username" clearable class="filter-item" style="width: 200px;" placeholder="请输入用户名" />
+      <el-input v-model="listQuery.id" clearable class="filter-item" style="width: 200px;" placeholder="请输入反馈ID" />
+      <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">查找</el-button>
+    </div>
+
+    <!-- 查询结果 -->
+    <el-table v-loading="listLoading" :data="list" element-loading-text="正在查询中。。。" border fit highlight-current-row>
+
+      <el-table-column align="center" label="反馈ID" prop="id" />
+
+      <el-table-column align="center" label="用户名" prop="username" />
+
+      <el-table-column align="center" label="手机号码" prop="mobile" />
+
+      <el-table-column align="center" label="反馈类型" prop="feedType" />
+
+      <el-table-column align="center" label="反馈内容" prop="content" />
+
+      <el-table-column align="center" label="反馈图片" prop="picUrls">
+        <template slot-scope="scope">
+          <el-image v-for="item in scope.row.picUrls" :key="item" :src="item" :preview-src-list="scope.row.picUrls" :lazy="true" style="width: 40px; height: 40px; margin-right: 5px;" />
+        </template>
+      </el-table-column>
+
+      <el-table-column align="center" label="时间" prop="addTime" />
+
+    </el-table>
+
+    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
+
+  </div>
 </template>
 
 <script>
+import { getFeedbackList } from '@/api/customer'
+import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
+
 export default {
-  name: "feedback"
+  name: 'Feedback',
+  components: { Pagination },
+  data() {
+    return {
+      list: [],
+      total: 0,
+      listLoading: true,
+      listQuery: {
+        page: 1,
+        limit: 20,
+        username: undefined,
+        sort: 'insert_time',
+        order: 'desc'
+      },
+      downloadLoading: false
+    }
+  },
+  created() {
+    this.getList()
+  },
+  methods: {
+    getList() {
+      this.listLoading = true
+      getFeedbackList(this.listQuery).then(response => {
+        this.list = response.data.list
+        this.total = response.data.total
+        this.listLoading = false
+      }).catch(() => {
+        this.list = []
+        this.total = 0
+        this.listLoading = false
+      })
+    },
+    handleFilter() {
+      this.listQuery.page = 1
+      this.getList()
+    }
+  }
 }
 </script>
-
-<style scoped>
-
-</style>

@@ -4,7 +4,7 @@
     <!-- 查询和其他操作 -->
     <div class="filter-container">
       <el-input v-model="listQuery.nickname" clearable class="filter-item" style="width: 160px;" placeholder="请输入用户昵称" />
-      <el-input v-model="listQuery.consignee" clearable class="filter-item" style="width: 160px;" placeholder="请输入收货人名称" />
+      <el-input v-model="listQuery.name" clearable class="filter-item" style="width: 160px;" placeholder="请输入房主名称" />
       <el-input v-model="listQuery.orderSn" clearable class="filter-item" style="width: 160px;" placeholder="请输入订单编号" />
       <el-date-picker v-model="listQuery.timeArray" type="datetimerange" value-format="yyyy-MM-dd HH:mm:ss" class="filter-item" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" :picker-options="pickerOptions" />
       <el-select v-model="listQuery.orderStatusArray" multiple style="width: 200px" class="filter-item" placeholder="请选择订单状态">
@@ -20,7 +20,7 @@
         <template slot-scope="props">
           <div v-for="item in props.row.goodsVoList" :key="item.id" class="order-goods">
             <div class="picture">
-              <img :src="item.picUrl" width="40">
+              <img :src="item.picUrl" alt="" width="40">
             </div>
             <div class="name">
               商品名称：{{ item.goodsName }}
@@ -43,13 +43,7 @@
 
       <el-table-column align="center" min-width="120" label="订单编号" prop="orderSn" />
 
-      <el-table-column align="center" label="用户头像" width="80">
-        <template slot-scope="scope">
-          <el-avatar :src="scope.row.avatar" />
-        </template>
-      </el-table-column>
-
-      <el-table-column align="center" label="下单用户" prop="userName" />
+      <el-table-column align="center" label="下单用户" prop="username" />
 
       <el-table-column align="center" label="下单时间" prop="addTime" min-width="100">
         <template slot-scope="scope">
@@ -62,38 +56,33 @@
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="订单金额" prop="orderPrice">
+      <el-table-column align="center" label="订单金额" prop="servicePrice">
         <template slot-scope="scope">
-          {{ scope.row.orderPrice }} 元
+          {{ scope.row.servicePrice }} 元
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="实付金额" prop="actualPrice">
+      <el-table-column align="center" label="实付金额" prop="servicePrice">
         <template slot-scope="scope">
-          {{ scope.row.actualPrice }} 元
+          {{ scope.row.servicePrice }} 元
         </template>
       </el-table-column>
 
       <el-table-column align="center" label="支付时间" prop="payTime" />
 
-      <el-table-column align="center" label="收货人" prop="consignee">
+      <el-table-column align="center" label="房主" prop="name">
         <template slot-scope="scope">
-          <span style="color:red; font-weight:bold;">{{ scope.row.consignee }}</span>
+          <span style="color:red; font-weight:bold;">{{ scope.row.name }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="收货电话" prop="mobile" min-width="100" />
-
-      <el-table-column align="center" label="物流单号" prop="shipSn" />
-
-      <el-table-column align="center" label="物流渠道" prop="shipChannel" />
+      <el-table-column align="center" label="电话" prop="phone" min-width="100" />
 
       <el-table-column align="center" label="操作" width="250" class-name="oper">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="handleDetail(scope.row)">详情</el-button>
           <el-button type="danger" size="mini" @click="handleDelete(scope.row)">删除</el-button>
           <el-button type="warning" size="mini" @click="handlePay(scope.row)">收款</el-button>
-          <el-button type="primary" size="mini" @click="handleShip(scope.row)">发货</el-button>
           <el-button type="danger" size="mini" @click="handleRefund(scope.row)">退款</el-button>
         </template>
       </el-table-column>
@@ -112,26 +101,26 @@
             <el-tag>{{ orderDetail.order.orderStatus | orderStatusFilter }}</el-tag>
           </el-form-item>
           <el-form-item label="订单用户">
-            <span>{{ orderDetail.user.nickname }}</span>
+            <span>{{ orderDetail.user.name }}</span>
           </el-form-item>
           <el-form-item label="用户留言">
             <span>{{ orderDetail.order.message }}</span>
           </el-form-item>
-          <el-form-item label="收货信息">
-            <span>（收货人）{{ orderDetail.order.consignee }}</span>
-            <span>（手机号）{{ orderDetail.order.mobile }}</span>
+          <el-form-item label="接收信息">
+            <span>（房主）{{ orderDetail.order.name }}</span>
+            <span>（手机号）{{ orderDetail.order.phone }}</span>
             <span>（地址）{{ orderDetail.order.address }}</span>
           </el-form-item>
-          <el-form-item label="商品信息">
+          <el-form-item label="服务信息">
             <el-table :data="orderDetail.orderGoods" border fit highlight-current-row>
-              <el-table-column align="center" label="商品名称" prop="goodsName" />
-              <el-table-column align="center" label="商品编号" prop="goodsSn" />
-              <el-table-column align="center" label="货品规格" prop="specifications" />
-              <el-table-column align="center" label="货品价格" prop="price" />
-              <el-table-column align="center" label="货品数量" prop="number" />
-              <el-table-column align="center" label="货品图片" prop="picUrl">
+              <el-table-column align="center" label="服务名称" prop="goodsName" />
+              <el-table-column align="center" label="服务编号" prop="goodsSn" />
+              <el-table-column align="center" label="服务规格" prop="specifications" />
+              <el-table-column align="center" label="服务价格" prop="price" />
+              <el-table-column align="center" label="服务数量" prop="number" />
+              <el-table-column align="center" label="服务图片" prop="picUrl">
                 <template slot-scope="scope">
-                  <img :src="scope.row.picUrl" width="40">
+                  <img :src="scope.row.picUrl" alt="" width="40">
                 </template>
               </el-table-column>
             </el-table>
@@ -139,8 +128,7 @@
           <el-form-item label="费用信息">
             <span>
               (实际费用){{ orderDetail.order.actualPrice }}元 =
-              (商品总价){{ orderDetail.order.goodsPrice }}元 +
-              (快递费用){{ orderDetail.order.freightPrice }}元 -
+              (服务总价){{ orderDetail.order.goodsPrice }}元 +
               (优惠减免){{ orderDetail.order.couponPrice }}元 -
               (积分减免){{ orderDetail.order.integralPrice }}元
             </span>
@@ -148,11 +136,6 @@
           <el-form-item label="支付信息">
             <span>（支付渠道）微信支付</span>
             <span>（支付时间）{{ orderDetail.order.payTime }}</span>
-          </el-form-item>
-          <el-form-item label="快递信息">
-            <span>（快递公司）{{ orderDetail.order.shipChannel }}</span>
-            <span>（快递单号）{{ orderDetail.order.shipSn }}</span>
-            <span>（发货时间）{{ orderDetail.order.shipTime }}</span>
           </el-form-item>
           <el-form-item label="退款信息">
             <span>（退款金额）{{ orderDetail.order.refundAmount }}元</span>
@@ -184,7 +167,7 @@
         </el-form-item>
       </el-form>
       <el-table :data="payForm.goodsList">
-        <el-table-column property="goodsName" label="商品" />
+        <el-table-column property="goodsName" label="服务" />
         <el-table-column label="规格">
           <template slot-scope="scope">
             {{ scope.row.specifications.join('-') }}
@@ -200,24 +183,6 @@
       <div slot="footer" class="dialog-footer">
         <el-button @click="payDialogVisible = false">取消</el-button>
         <el-button type="primary" @click="confirmPay">确定</el-button>
-      </div>
-    </el-dialog>
-
-    <!-- 发货对话框 -->
-    <el-dialog :visible.sync="shipDialogVisible" title="发货">
-      <el-form ref="shipForm" :model="shipForm" status-icon label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
-        <el-form-item label="快递公司" prop="shipChannel">
-          <el-select v-model="shipForm.shipChannel" placeholder="请选择">
-            <el-option v-for="item in channels" :key="item.code" :label="item.name" :value="item.code" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="快递编号" prop="shipSn">
-          <el-input v-model="shipForm.shipSn" />
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="shipDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="confirmShip">确定</el-button>
       </div>
     </el-dialog>
 
@@ -238,7 +203,7 @@
 </template>
 
 <script>
-import { getOrderDetail, getOrderList, refundOrder, payOrder, deleteOrder, shipOrder } from '@/api/order'
+import { getOrderDetail, getOrderList, refundOrder, payOrder, deleteOrder } from '@/api/order'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 import checkPermission from '@/utils/permission' // 权限判断函数
 
@@ -271,7 +236,7 @@ export default {
         page: 1,
         limit: 20,
         nickname: undefined,
-        consignee: undefined,
+        name: undefined,
         orderSn: undefined,
         timeArray: [],
         orderStatusArray: [],
@@ -379,21 +344,20 @@ export default {
       this.getList()
     },
     handleDetail(row) {
-      getOrderDetail(row.id).then(response => {
+      getOrderDetail(row.orderSn).then(response => {
         this.orderDetail = response.data
       })
       this.orderDialogVisible = true
     },
     handlePay(row) {
+      this.payDialogVisible = true
       this.payForm.orderId = row.id
-      this.payForm.orderSn = row.orderSn
-      this.payForm.oldMoney = row.actualPrice
-      this.payForm.newMoney = row.actualPrice
+      this.payForm.orderSn = row.servicePrice
+      this.payForm.oldMoney = row.servicePrice
       this.payForm.goodsList = row.goodsVoList
       this.payForm.goodsList.forEach(element => {
         element.onumber = element.number
       })
-      this.payDialogVisible = true
     },
     confirmPay() {
       if (this.payForm.oldMoney !== this.payForm.newMoney) {
@@ -408,7 +372,7 @@ export default {
       }
     },
     confirmPay2() {
-      payOrder(this.payForm).then(response => {
+      payOrder(this.payForm).then(() => {
         this.$notify.success({
           title: '成功',
           message: '订单收款操作成功'
@@ -423,37 +387,8 @@ export default {
         this.payDialogVisible = false
       })
     },
-    handleShip(row) {
-      this.shipForm.orderId = row.id
-      this.shipForm.shipChannel = row.shipChannel
-      this.shipForm.shipSn = row.shipSn
-
-      this.shipDialogVisible = true
-      this.$nextTick(() => {
-        this.$refs['shipForm'].clearValidate()
-      })
-    },
-    confirmShip() {
-      this.$refs['shipForm'].validate((valid) => {
-        if (valid) {
-          shipOrder(this.shipForm).then(response => {
-            this.shipDialogVisible = false
-            this.$notify.success({
-              title: '成功',
-              message: '确认发货成功'
-            })
-            this.getList()
-          }).catch(response => {
-            this.$notify.error({
-              title: '失败',
-              message: response.errmsg
-            })
-          })
-        }
-      })
-    },
     handleDelete(row) {
-      deleteOrder({ orderId: row.id }).then(response => {
+      deleteOrder({ id: row.orderSn }).then(() => {
         this.$notify.success({
           title: '成功',
           message: '订单删除成功'
@@ -468,7 +403,7 @@ export default {
     },
     handleRefund(row) {
       this.refundForm.orderId = row.id
-      this.refundForm.refundMoney = row.actualPrice
+      this.refundForm.refundMoney = row.servicePrice
 
       this.refundDialogVisible = true
       this.$nextTick(() => {
@@ -478,7 +413,7 @@ export default {
     confirmRefund() {
       this.$refs['refundForm'].validate((valid) => {
         if (valid) {
-          refundOrder(this.refundForm).then(response => {
+          refundOrder(this.refundForm).then(() => {
             this.refundDialogVisible = false
             this.$notify.success({
               title: '成功',
