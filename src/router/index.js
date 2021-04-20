@@ -112,35 +112,25 @@ export const asyncRoutes = [
     redirect: '/system/admin',
     alwaysShow: true,
     name: 'system',
-    meta: { title: '系统管理', icon: 'peoples', roles: ['超级管理员', 'editor'] },
+    meta: { title: '系统管理', icon: 'peoples' },
     children: [
       {
         path: 'admin',
         name: 'admins',
         component: () => import('@/views/system/admin'),
-        meta: { title: '管理员', icon: 'table', roles: ['超级管理员'] }
+        meta: { title: '管理员', icon: 'ums-admin' }
       },
       {
-        path: 'employee',
-        name: 'employees',
-        component: () => import('@/views/system/employee'),
-        meta: { title: '雇员', icon: 'tree', roles: ['超级管理员', 'editor'] }
+        path: 'notice',
+        name: 'notice',
+        component: () => import('@/views/system/notice'),
+        meta: { title: '通知管理', icon: 'tree' }
       },
       {
         path: 'os',
         name: 'os',
         component: () => import('@/views/system/os'),
-        meta: { title: '储存', icon: 'tree', roles: ['超级管理员', 'editor'] }
-      },
-      {
-        path: 'role',
-        component: () => import('@/views/system/role'),
-        name: 'RolePermission',
-        meta: {
-          title: '管理种类',
-          icon: 'table',
-          roles: ['超级管理员']
-        }
+        meta: { title: '储存管理', icon: 'tree' }
       }
     ]
   },
@@ -158,18 +148,23 @@ export const asyncRoutes = [
         component: () => import('@/views/employee/index'),
         name: 'employee-index',
         meta: {
-          title: '雇员服务汇总',
-          noCache: true
+          title: '服务统计',
+          noCache: true,
+          icon: 'tree'
         }
       },
       {
-        path: 'address',
-        component: () => import('@/views/employee/address'),
-        name: 'employee-address',
-        meta: {
-          title: '雇员住址',
-          noCache: true
-        }
+        path: 'employee',
+        name: 'employees',
+        component: () => import('@/views/employee/employee'),
+        meta: { title: '雇员管理', icon: 'tree', roles: ['超级管理员', 'editor'] }
+      },
+      {
+        path: 'add',
+        name: 'employeeAdd',
+        hidden: true,
+        component: () => import('@/views/employee/product/add'),
+        meta: { title: '雇员添加', icon: 'tree', roles: ['超级管理员', 'editor'] }
       },
       {
         path: 'feedback',
@@ -177,6 +172,7 @@ export const asyncRoutes = [
         name: 'employee-feedback',
         meta: {
           title: '雇员反馈',
+          icon: 'tree',
           noCache: true
         }
       },
@@ -186,6 +182,7 @@ export const asyncRoutes = [
         name: 'employee-category',
         meta: {
           title: '雇员种类',
+          icon: 'tree',
           noCache: true
         }
       }
@@ -219,15 +216,6 @@ export const asyncRoutes = [
         }
       },
       {
-        path: 'comment',
-        component: () => import('@/views/customer/comment'),
-        name: 'customer-comment',
-        meta: {
-          title: '用户评价',
-          noCache: true
-        }
-      },
-      {
         path: 'feedback',
         component: () => import('@/views/customer/feedback'),
         name: 'customer-feedback',
@@ -242,15 +230,6 @@ export const asyncRoutes = [
         name: 'customer-collection',
         meta: {
           title: '用户收藏',
-          noCache: true
-        }
-      },
-      {
-        path: 'after-service',
-        component: () => import('@/views/customer/aftersale'),
-        name: 'after-service',
-        meta: {
-          title: '用户售后',
           noCache: true
         }
       },
@@ -283,7 +262,27 @@ export const asyncRoutes = [
         path: 'orders',
         name: 'orders',
         component: () => import('@/views/order/orders'),
-        meta: { title: '订单', icon: 'tree' }
+        meta: { title: '订单管理', icon: 'tree' }
+      },
+      {
+        path: 'after-service',
+        component: () => import('@/views/order/aftersale'),
+        name: 'after-service',
+        meta: {
+          title: '订单售后',
+          noCache: true,
+          icon: 'tree'
+        }
+      },
+      {
+        path: 'comment',
+        component: () => import('@/views/order/comment'),
+        name: 'customer-comment',
+        meta: {
+          title: '订单评价',
+          noCache: true,
+          icon: 'tree'
+        }
       }
     ]
   },
@@ -365,16 +364,43 @@ export const asyncRoutes = [
   },
 
   {
+    path: '/promotion',
+    component: Layout,
+    redirect: '/promotion/hot',
+    name: 'promotion',
+    meta: { title: '营销', icon: 'sms' },
+    children: [
+      {
+        path: 'hot',
+        name: 'homeHot',
+        component: () => import('@/views/promotion/hot/index'),
+        meta: { title: '人气推荐', icon: 'sms-hot' }
+      },
+      {
+        path: 'advertise',
+        name: 'homeAdvertise',
+        component: () => import('@/views/promotion/advertise/index'),
+        meta: { title: '广告列表', icon: 'sms-ad' }
+      },
+      {
+        path: 'addAdvertise',
+        name: 'addHomeAdvertise',
+        component: () => import('@/views/promotion/advertise/add'),
+        meta: { title: '添加广告' },
+        hidden: true
+      }
+    ]
+  },
+
+  {
     path: '/permission',
     component: Layout,
     redirect: '/permission/page',
     alwaysShow: true, // will always show the root menu
-    hidden: true,
     name: 'Permission',
     meta: {
-      title: '权限测试',
-      icon: 'lock',
-      roles: ['超级管理员', 'editor'] // you can set roles in root nav
+      title: '权限管理',
+      icon: 'lock'
     },
     children: [
       {
@@ -382,8 +408,7 @@ export const asyncRoutes = [
         component: () => import('@/views/permission/page'),
         name: 'PagePermission',
         meta: {
-          title: 'Page Permission',
-          roles: ['超级管理员'] // or you can only set roles in sub nav
+          title: '页面权限'
         }
       },
       {
@@ -391,9 +416,62 @@ export const asyncRoutes = [
         component: () => import('@/views/permission/directive'),
         name: 'DirectivePermission',
         meta: {
-          title: 'Directive Permission'
+          title: '指令权限'
           // if do not set roles, means: this page does not require permission
         }
+      },
+      {
+        path: 'role',
+        name: 'role',
+        component: () => import('@/views/permission/role/index'),
+        meta: { title: '角色列表', icon: 'ums-role' }
+      },
+      {
+        path: 'allocMenu',
+        name: 'allocMenu',
+        component: () => import('@/views/permission/role/allocMenu'),
+        meta: { title: '分配菜单' },
+        hidden: true
+      },
+      {
+        path: 'allocResource',
+        name: 'allocResource',
+        component: () => import('@/views/permission/role/allocResource'),
+        meta: { title: '分配资源' },
+        hidden: true
+      },
+      {
+        path: 'menu',
+        name: 'menu',
+        component: () => import('@/views/permission/menu/index'),
+        meta: { title: '菜单列表', icon: 'ums-menu' }
+      },
+      {
+        path: 'addMenu',
+        name: 'addMenu',
+        component: () => import('@/views/permission/menu/add'),
+        meta: { title: '添加菜单' },
+        hidden: true
+      },
+      {
+        path: 'updateMenu',
+        name: 'updateMenu',
+        component: () => import('@/views/permission/menu/update'),
+        meta: { title: '修改菜单' },
+        hidden: true
+      },
+      {
+        path: 'resource',
+        name: 'resource',
+        component: () => import('@/views/permission/resource/index'),
+        meta: { title: '资源列表', icon: 'ums-resource' }
+      },
+      {
+        path: 'resourceCategory',
+        name: 'resourceCategory',
+        component: () => import('@/views/permission/resource/categoryList'),
+        meta: { title: '资源分类' },
+        hidden: true
       }
     ]
   },

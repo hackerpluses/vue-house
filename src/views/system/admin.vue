@@ -1,51 +1,137 @@
 <template>
   <div class="app-container">
-
-    <!-- 查询和其他操作 -->
-    <div class="filter-container">
-      <el-input v-model="listQuery.username" clearable class="filter-item" style="width: 200px;" placeholder="请输入管理员名称" />
-      <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">查找</el-button>
-      <el-button class="filter-item" type="primary" icon="el-icon-edit" @click="handleCreate">添加</el-button>
+    <el-card class="filter-container" shadow="never">
+      <div>
+        <i class="el-icon-search" />
+        <span>筛选搜索</span>
+        <el-button
+          style="float:right"
+          type="primary"
+          size="small"
+          @click="handleSearchList()"
+        >
+          查询搜索
+        </el-button>
+        <el-button
+          style="float:right;margin-right: 15px"
+          size="small"
+          @click="handleResetSearch()"
+        >
+          重置
+        </el-button>
+      </div>
+      <div style="margin-top: 15px">
+        <el-form :inline="true" :model="listQuery" size="small" label-width="140px">
+          <el-form-item label="输入搜索：">
+            <el-input v-model="listQuery.keyword" class="input-width" placeholder="帐号/昵称" clearable />
+          </el-form-item>
+        </el-form>
+      </div>
+    </el-card>
+    <el-card class="operate-container" shadow="never">
+      <i class="el-icon-tickets" />
+      <span>数据列表</span>
+      <el-button size="mini" class="btn-add" style="margin-left: 20px" @click="handleAdd()">添加</el-button>
+    </el-card>
+    <div class="table-container">
+      <el-table
+        ref="adminTable"
+        v-loading="listLoading"
+        :data="list"
+        style="width: 100%;"
+        border
+      >
+        <el-table-column label="编号" width="100" align="center">
+          <template slot-scope="scope">{{ scope.row.id }}</template>
+        </el-table-column>
+        <el-table-column label="帐号" align="center">
+          <template slot-scope="scope">{{ scope.row.username }}</template>
+        </el-table-column>
+        <el-table-column label="昵称" align="center">
+          <template slot-scope="scope">{{ scope.row.nickname }}</template>
+        </el-table-column>
+        <el-table-column align="center" label="管理员头像" prop="avatar">
+          <template slot-scope="scope">
+            <img v-if="scope.row.avatar" alt="无" :src="scope.row.avatar" width="40">
+          </template>
+        </el-table-column>
+        <el-table-column align="center" label="最后登录时间" prop="lastLoginTime" />
+        <el-table-column align="center" label="最后登录ip" prop="lastLoginIp" />
+        <el-table-column label="是否启用" width="140" align="center">
+          <template slot-scope="scope">
+            <el-switch
+              v-model="scope.row.status"
+              @change="handleStatusChange(scope.$index, scope.row)"
+            />
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="180" align="center">
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              type="text"
+              @click="handleSelectRole(scope.$index, scope.row)"
+            >分配角色
+            </el-button>
+            <el-button
+              size="mini"
+              type="text"
+              @click="handleUpdate(scope.$index, scope.row)"
+            >
+              编辑
+            </el-button>
+            <el-button
+              size="mini"
+              type="text"
+              @click="handleDelete(scope.$index, scope.row)"
+            >删除
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
     </div>
-
-    <!-- 查询结果 -->
-    <el-table v-loading="listLoading" :data="list" element-loading-text="正在查询中。。。" border fit highlight-current-row>
-      <el-table-column align="center" label="管理员ID" prop="id" sortable />
-      <el-table-column align="center" label="管理员账户" prop="username" />
-      <el-table-column align="center" label="管理员昵称" prop="nickname" />
-      <el-table-column align="center" label="管理员头像" prop="avatar">
-        <template slot-scope="scope">
-          <img v-if="scope.row.avatar" alt="无" :src="scope.row.avatar" width="40">
-        </template>
-      </el-table-column>
-      <el-table-column align="center" label="管理员角色" prop="roleIds">
-        <template slot-scope="scope">
-          <el-tag v-for="roleId in scope.row.roleIds" :key="roleId" type="primary" style="margin-right: 20px;"> {{ formatRole(roleId) }} </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column align="center" label="最后登录时间" prop="lastLoginTime" />
-      <el-table-column align="center" label="最后登录ip" prop="lastLoginIp" />
-      <el-table-column align="center" label="操作" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
-          <el-button type="primary" icon="el-icon-edit" circle @click="handleUpdate(scope.row)" />
-          <el-button type="danger" icon="el-icon-delete" circle @click="handleDelete(scope.row)" />
-        </template>
-      </el-table-column>
-    </el-table>
-
-    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
-
-    <!-- 添加或修改对话框 -->
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form ref="dataForm" :rules="rules" :model="dataForm" status-icon label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
-        <el-form-item label="管理员账户" prop="username">
-          <el-input v-model="dataForm.username" />
+    <div class="pagination-container">
+      <el-pagination
+        background
+        layout="total, sizes,prev, pager, next,jumper"
+        :current-page.sync="listQuery.pageNum"
+        :page-size="listQuery.pageSize"
+        :page-sizes="[10,15,20]"
+        :total="total"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+      />
+    </div>
+    <el-dialog
+      :title="isEdit?'编辑用户':'添加用户'"
+      :visible.sync="dialogVisible"
+      width="40%"
+    >
+      <el-form
+        ref="adminForm"
+        :model="admin"
+        label-width="150px"
+        size="small"
+      >
+        <el-form-item label="帐号：">
+          <el-input v-model="admin.username" style="width: 250px" />
         </el-form-item>
-        <el-form-item label="管理员昵称" prop="nickname">
-          <el-input v-model="dataForm.nickname" />
+        <el-form-item label="昵称：">
+          <el-input v-model="admin.nickname" style="width: 250px" />
         </el-form-item>
-        <el-form-item label="管理员密码" prop="password">
-          <el-input v-model="dataForm.password" type="password" auto-complete="off" />
+        <el-form-item label="邮箱：">
+          <el-input v-model="admin.email" style="width: 250px" />
+        </el-form-item>
+        <el-form-item v-if="!isEdit" label="密码：">
+          <el-input v-model="admin.password" type="password" style="width: 250px" />
+        </el-form-item>
+        <el-form-item label="备注：">
+          <el-input
+            v-model="admin.note"
+            type="textarea"
+            :rows="5"
+            style="width: 250px"
+          />
         </el-form-item>
         <el-form-item label="管理员头像" prop="avatar">
           <el-upload
@@ -56,229 +142,237 @@
             class="avatar-uploader"
             accept=".jpg,.jpeg,.png,.gif"
           >
-            <img v-if="dataForm.avatar" alt="" :src="dataForm.avatar" class="avatar">
+            <img v-if="admin.avatar" alt="" :src="admin.avatar" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon" />
           </el-upload>
         </el-form-item>
-        <el-form-item label="管理员角色" prop="roleIds">
-          <el-select v-model="dataForm.roleIds" multiple placeholder="请选择">
-            <el-option
-              v-for="item in roleOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
+        <el-form-item label="是否启用：">
+          <el-radio-group v-model="admin.status">
+            <el-radio :label="true">是</el-radio>
+            <el-radio :label="false">否</el-radio>
+          </el-radio-group>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取消</el-button>
-        <el-button v-if="dialogStatus==='create'" type="primary" @click="createData">确定</el-button>
-        <el-button v-else type="primary" @click="updateData">确定</el-button>
-      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button size="small" @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" size="small" @click="handleDialogConfirm()">确 定</el-button>
+      </span>
     </el-dialog>
-
+    <el-dialog
+      title="分配角色"
+      :visible.sync="allocDialogVisible"
+      width="30%"
+    >
+      <el-select v-model="allocRoleIds" multiple placeholder="请选择" size="small" style="width: 80%">
+        <el-option
+          v-for="item in allRoleList"
+          :key="item.id"
+          :label="item.name"
+          :value="item.id"
+        />
+      </el-select>
+      <span slot="footer" class="dialog-footer">
+        <el-button size="small" @click="allocDialogVisible = false">取 消</el-button>
+        <el-button type="primary" size="small" @click="handleAllocDialogConfirm()">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
-
 <script>
-import { getAdmins, addAdmin, updateAdmin, deleteAdmin } from '@/api/person'
-import { roleOptions } from '@/api/role'
+import { fetchList, createAdmin, updateAdmin, updateStatus, deleteAdmin, getRoleByAdmin, allocRole } from '@/api/admin'
+import { fetchAllRoleList } from '@/api/role'
+import { formatDate } from '@/utils/date'
 import { uploadPath } from '@/api/storage'
 import { getToken } from '@/utils/auth'
-import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 
+const defaultListQuery = {
+  pageNum: 1,
+  pageSize: 10,
+  keyword: null
+}
+const defaultAdmin = {
+  id: null,
+  username: null,
+  password: null,
+  nickname: null,
+  email: null,
+  note: null,
+  status: 1
+}
 export default {
-  name: 'Admin',
-  components: { Pagination },
-  data() {
-    return {
-      uploadPath,
-      list: null,
-      total: 0,
-      roleOptions: null,
-      listLoading: true,
-      listQuery: {
-        page: 1,
-        limit: 20,
-        username: undefined,
-        sort: 'insert_time',
-        order: 'desc'
-      },
-      dataForm: {
-        id: undefined,
-        username: undefined,
-        password: undefined,
-        avatar: undefined,
-        roleIds: []
-      },
-      dialogFormVisible: false,
-      dialogStatus: '',
-      textMap: {
-        update: '编辑',
-        create: '创建'
-      },
-      rules: {
-        username: [
-          { required: true, message: '管理员名称不能为空', trigger: 'blur' }
-        ],
-        password: [{ required: true, message: '密码不能为空', trigger: 'blur' }]
-      },
-      downloadLoading: false
+  name: 'AdminList',
+  filters: {
+    formatDateTime(time) {
+      if (time == null || time === '') {
+        return 'N/A'
+      }
+      const date = new Date(time)
+      return formatDate(date, 'yyyy-MM-dd hh:mm:ss')
     }
   },
-  computed: {
-    headers() {
-      return {
-        'X-Hoursekeeping-Admin-Token': getToken()
-      }
+  data() {
+    return {
+      listQuery: Object.assign({}, defaultListQuery),
+      list: null,
+      total: null,
+      listLoading: false,
+      dialogVisible: false,
+      admin: Object.assign({}, defaultAdmin),
+      isEdit: false,
+      allocDialogVisible: false,
+      allocRoleIds: [],
+      allRoleList: [],
+      allocAdminId: null,
+      // 头像相关
+      uploadPath,
+      headers: { 'X-HouseKeeping-Admin-Token': getToken() }
     }
   },
   created() {
     this.getList()
-    roleOptions()
-      .then(response => {
-        this.roleOptions = response.data[0].records
-      })
+    this.getAllRoleList()
   },
   methods: {
-    formatRole(roleId) {
-      for (let i = 0; i < this.roleOptions.length; i++) {
-        if (roleId === this.roleOptions[i].value) {
-          return this.roleOptions[i].label
-        }
-      }
-      return ''
+    handleResetSearch() {
+      this.listQuery = Object.assign({}, defaultListQuery)
     },
-    getList() {
-      this.listLoading = true
-      getAdmins(this.listQuery)
-        .then(response => {
-          this.list = response.data.records
-          this.total = response.data.total
-          this.listLoading = false
-        })
-        .catch(() => {
-          this.list = []
-          this.total = 0
-          this.listLoading = false
-        })
-    },
-    handleFilter() {
-      this.listQuery.page = 1
+    handleSearchList() {
+      this.listQuery.pageNum = 1
       this.getList()
     },
-    resetForm() {
-      this.dataForm = {
-        id: undefined,
-        username: undefined,
-        password: undefined,
-        avatar: undefined,
-        roleIds: []
-      }
+    handleSizeChange(val) {
+      this.listQuery.pageNum = 1
+      this.listQuery.pageSize = val
+      this.getList()
     },
-    uploadAvatar: function(response) {
-      this.$set(this.dataForm, 'avatar', response.data[0].url)
+    handleCurrentChange(val) {
+      this.listQuery.pageNum = val
+      this.getList()
     },
-    handleCreate() {
-      this.resetForm()
-      this.dialogStatus = 'create'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
+    handleAdd() {
+      this.dialogVisible = true
+      this.isEdit = false
+      this.admin = Object.assign({}, defaultAdmin)
+    },
+    handleStatusChange(index, row) {
+      this.$confirm('是否要修改该状态?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        updateStatus(row.id, { status: row.status }).then(response => {
+          this.$message({
+            type: 'success',
+            message: '修改成功!'
+          })
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '取消修改'
+        })
+        this.getList()
       })
     },
-    createData() {
-      this.$refs['dataForm'].validate(valid => {
-        if (valid) {
-          addAdmin(this.dataForm)
-            .then(response => {
-              this.list.unshift(response.data)
-              this.dialogFormVisible = false
-              this.$notify.success({
-                title: '成功',
-                message: '添加管理员成功'
-              })
-            })
-            .catch(response => {
-              this.$notify.error({
-                title: '失败',
-                message: response.errmsg
-              })
-            })
-        }
-      })
-    },
-    handleUpdate(row) {
-      this.dataForm = JSON.parse(JSON.stringify(row))
-      this.dialogStatus = 'update'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
-    updateData() {
-      this.$refs['dataForm'].validate(valid => {
-        if (valid) {
-          updateAdmin(this.dataForm)
-            .then(() => {
-              this.dialogFormVisible = false
-              this.$notify.success({
-                title: '成功',
-                message: '更新管理员成功'
-              })
-              this.getList()
-            })
-            .catch(response => {
-              this.$notify.error({
-                title: '失败',
-                message: response.errmsg
-              })
-            })
-        }
-      })
-    },
-    handleDelete(row) {
-      deleteAdmin(row)
-        .then(() => {
-          this.$notify.success({
-            title: '成功',
-            message: '删除管理员成功'
+    handleDelete(index, row) {
+      this.$confirm('是否要删除该用户?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteAdmin(row.id).then(response => {
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
           })
           this.getList()
         })
-        .catch(response => {
-          this.$notify.error({
-            title: '失败',
-            message: response.errmsg
+      })
+    },
+    handleUpdate(index, row) {
+      this.dialogVisible = true
+      this.isEdit = true
+      this.admin = Object.assign({}, row)
+    },
+    handleDialogConfirm() {
+      this.$confirm('是否要确认?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        if (this.isEdit) {
+          updateAdmin(this.admin.id, this.admin).then(response => {
+            this.$message({
+              message: '修改成功！',
+              type: 'success'
+            })
+            this.dialogVisible = false
+            this.getList()
           })
+        } else {
+          createAdmin(this.admin).then(response => {
+            this.$message({
+              message: '添加成功！',
+              type: 'success'
+            })
+            this.dialogVisible = false
+            this.getList()
+          })
+        }
+      })
+    },
+    handleAllocDialogConfirm() {
+      this.$confirm('是否要确认?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        const params = new URLSearchParams()
+        params.append('adminId', this.allocAdminId)
+        params.append('roleIds', this.allocRoleIds)
+        allocRole(params).then(response => {
+          this.$message({
+            message: '分配成功！',
+            type: 'success'
+          })
+          this.allocDialogVisible = false
         })
+      })
+    },
+    handleSelectRole(index, row) {
+      this.allocAdminId = row.id
+      this.allocDialogVisible = true
+      this.getRoleListByAdmin(row.id)
+    },
+    getList() {
+      this.listLoading = true
+      fetchList(this.listQuery).then(response => {
+        this.listLoading = false
+        this.list = response.data.records
+        this.total = response.data.total
+      })
+    },
+    getAllRoleList() {
+      fetchAllRoleList().then(response => {
+        this.allRoleList = response.data
+      })
+    },
+    getRoleListByAdmin(adminId) {
+      getRoleByAdmin(adminId).then(response => {
+        const allocRoleList = response.data
+        this.allocRoleIds = []
+        if (allocRoleList != null && allocRoleList.length > 0) {
+          for (let i = 0; i < allocRoleList.length; i++) {
+            this.allocRoleIds.push(allocRoleList[i].id)
+          }
+        }
+      })
+    },
+    uploadAvatar: function(response) {
+      this.$set(this.admin, 'avatar', response.data.url)
     }
   }
 }
 </script>
-<style>
-.avatar-uploader .el-upload {
-  border: 1px dashed #d9d9d9;
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
-.avatar-uploader .el-upload:hover {
-  border-color: #20a0ff;
-}
-.avatar-uploader-icon {
-  font-size: 28px;
-  color: #8c939d;
-  width: 120px;
-  height: 120px;
-  line-height: 120px;
-  text-align: center;
-}
-.avatar {
-  width: 145px;
-  height: 145px;
-  display: block;
-}
-</style>
+<style></style>
+

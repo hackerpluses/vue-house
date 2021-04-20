@@ -54,14 +54,14 @@ const actions = {
         const { data } = response
 
         if (!data) {
-          reject('Verification failed, please Login again.')
+          reject('验证失败，请再次登录')
         }
 
         const { roles, name, avatar, phone, introduction } = data
 
         // roles must be a non-empty array
         if (!roles || roles.length <= 0) {
-          reject('getInfo: roles must be a non-null array!')
+          reject('getInfo: 不存在任何管理员角色，你不是管理员')
         }
 
         commit('SET_ROLES', roles)

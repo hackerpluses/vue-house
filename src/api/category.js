@@ -46,3 +46,11 @@ export function deleteCategory(data) {
     data
   })
 }
+
+export function roleOptions(query) {
+  return request({
+    url: '/admin/category/options',
+    method: 'get',
+    params: query
+  })
+}

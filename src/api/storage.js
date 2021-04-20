@@ -40,5 +40,5 @@ export function deleteStorage(data) {
   })
 }
 
-const uploadPath = process.env.VUE_APP_BASE_API + '/admin/storage/create'
+const uploadPath = process.env.VUE_APP_BASE_API + '/minio/upload'
 export { uploadPath }

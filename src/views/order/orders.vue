@@ -10,49 +10,23 @@
       <el-select v-model="listQuery.orderStatusArray" multiple style="width: 200px" class="filter-item" placeholder="请选择订单状态">
         <el-option v-for="(key, value) in statusMap" :key="key" :label="key" :value="value" />
       </el-select>
-      <el-button v-permission="['GET /admin/order/list']" class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">查找</el-button>
+      <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">查找</el-button>
     </div>
 
     <!-- 查询结果 -->
-    <el-table v-loading="listLoading" :data="list" element-loading-text="正在查询中。。。" border fit highlight-current-row>
-
-      <el-table-column type="expand">
-        <template slot-scope="props">
-          <div v-for="item in props.row.goodsVoList" :key="item.id" class="order-goods">
-            <div class="picture">
-              <img :src="item.picUrl" alt="" width="40">
-            </div>
-            <div class="name">
-              商品名称：{{ item.goodsName }}
-            </div>
-            <div class="spec">
-              规格：{{ item.specifications.join('-') }}
-            </div>
-            <div class="price">
-              单价：{{ item.price }} 元
-            </div>
-            <div class="num">
-              数量：{{ item.number }} 件
-            </div>
-            <div class="price">
-              小计：{{ item.price * item.number }} 元
-            </div>
-          </div>
-        </template>
-      </el-table-column>
-
+    <el-table v-loading="listLoading" :data="list" element-loading-text="正在查询中···" border fit highlight-current-row>
       <el-table-column align="center" min-width="120" label="订单编号" prop="orderSn" />
 
       <el-table-column align="center" label="下单用户" prop="username" />
 
-      <el-table-column align="center" label="下单时间" prop="addTime" min-width="100">
+      <el-table-column align="center" label="下单时间" prop="payTime" min-width="100">
         <template slot-scope="scope">
-          {{ (scope.row.addTime || '').substring(0, 10) }}
+          {{ (scope.row.payTime || '').substring(0, 10) }}
         </template>
       </el-table-column>
       <el-table-column align="center" label="订单状态" prop="orderStatus">
         <template slot-scope="scope">
-          <el-tag>{{ scope.row.orderStatus | orderStatusFilter }}</el-tag>
+          <el-tag>{{ staticDoc[String(scope.row.orderStatus)] }}</el-tag>
         </template>
       </el-table-column>
 
@@ -297,7 +271,8 @@ export default {
       },
       refundDialogVisible: false,
       downloadLoading: false,
-      channels: []
+      channels: [],
+      staticDoc: { 0: '未完成', 1: '完成' }
     }
   },
   created() {

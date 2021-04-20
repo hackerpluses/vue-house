@@ -24,7 +24,7 @@
           <el-avatar :src="scope.row.avatar" />
         </template>
       </el-table-column>
-      <el-table-column align="center" label="手机号码" prop="mobile" />
+      <el-table-column align="center" label="手机号码" prop="phone" />
       <el-table-column align="center" label="性别" prop="gender">
         <template slot-scope="scope">
           <el-tag>{{ genderDic[scope.row.gender] }}</el-tag>
@@ -62,8 +62,8 @@
         <el-form-item label="用户昵称" prop="username">
           <el-input v-model="userDetail.nickname" :readonly="true" />
         </el-form-item>
-        <el-form-item label="用户手机" prop="mobile">
-          <el-input v-model="userDetail.mobile" :readonly="true" />
+        <el-form-item label="用户手机" prop="phone">
+          <el-input v-model="userDetail.phone" :readonly="true" />
         </el-form-item>
         <el-form-item label="用户性别" prop="gender">
           <el-select v-model="userDetail.gender" placeholder="请选择" disabled><el-option v-for="(item, index) in genderDic" :key="index" :label="item" :value="index" /></el-select>
@@ -97,11 +97,11 @@
         <el-form-item label="用户昵称" prop="nickname">
           <el-input v-model="userDetail.nickname" />
         </el-form-item>
-        <el-form-item label="用户密码" prop="mobile">
+        <el-form-item label="用户密码" prop="phone">
           <el-input v-model="userDetail.password" />
         </el-form-item>
-        <el-form-item label="用户手机" prop="mobile">
-          <el-input v-model="userDetail.mobile" />
+        <el-form-item label="用户手机" prop="phone">
+          <el-input v-model="userDetail.phone" />
         </el-form-item>
         <el-form-item label="用户性别" prop="gender">
           <el-select v-model="userDetail.gender" placeholder="请选择"><el-option v-for="(item, index) in genderDic" :key="index" :label="item" :value="index" /></el-select>
@@ -140,11 +140,11 @@
         <el-form-item label="用户昵称" prop="nickname">
           <el-input v-model="userDetail.nickname" />
         </el-form-item>
-        <el-form-item label="用户密码" prop="mobile">
+        <el-form-item label="用户密码" prop="phone">
           <el-input v-model="userDetail.password" />
         </el-form-item>
-        <el-form-item label="用户手机" prop="mobile">
-          <el-input v-model="userDetail.mobile" />
+        <el-form-item label="用户手机" prop="phone">
+          <el-input v-model="userDetail.phone" />
         </el-form-item>
         <el-form-item label="用户性别" prop="gender">
           <el-select v-model="userDetail.gender" placeholder="请选择"><el-option v-for="(item, index) in genderDic" :key="index" :label="item" :value="index" /></el-select>
@@ -199,7 +199,7 @@ export default {
         page: 1,
         limit: 20,
         username: undefined,
-        mobile: undefined,
+        phone: undefined,
         userId: undefined,
         sort: 'insert_time',
         order: 'asc'

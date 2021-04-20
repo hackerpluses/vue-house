@@ -8,9 +8,9 @@ export function getAdmins(params) {
   })
 }
 
-export function updateAdmin(data) {
+export function updateAdmin(data, id) {
   return request({
-    url: '/admin/admin/update',
+    url: '/admin/admin/update/' + id,
     method: 'post',
     data
   })
@@ -18,7 +18,7 @@ export function updateAdmin(data) {
 
 export function addAdmin(data) {
   return request({
-    url: '/admin/admin/create',
+    url: '/admin/admin/register',
     method: 'post',
     data
   })

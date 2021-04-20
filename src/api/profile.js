@@ -18,14 +18,14 @@ export function updateAccount(data) {
 
 export function nNotice() {
   return request({
-    url: '/admin/profile/nnotice',
+    url: '/admin/profile/unread',
     method: 'get'
   })
 }
 
 export function listNotice(query) {
   return request({
-    url: '/admin/profile/lsnotice',
+    url: '/admin/profile/list',
     method: 'get',
     params: query
   })
@@ -33,7 +33,7 @@ export function listNotice(query) {
 
 export function catNotice(data) {
   return request({
-    url: '/admin/profile/catnotice',
+    url: '/admin/profile/read',
     method: 'post',
     data
   })
@@ -41,7 +41,7 @@ export function catNotice(data) {
 
 export function bcatNotice(data) {
   return request({
-    url: '/admin/profile/bcatnotice',
+    url: '/admin/profile/read',
     method: 'post',
     data
   })
@@ -49,7 +49,7 @@ export function bcatNotice(data) {
 
 export function rmNotice(data) {
   return request({
-    url: '/admin/profile/rmnotice',
+    url: '/admin/profile/remove',
     method: 'post',
     data
   })

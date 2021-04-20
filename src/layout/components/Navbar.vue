@@ -12,8 +12,12 @@
 
         <screenfull id="screenfull" class="right-menu-item hover-effect" />
 
-        <el-tooltip content="Global Size" effect="dark" placement="bottom">
+        <el-tooltip content="大小" effect="dark" placement="bottom">
           <size-select id="size-select" class="right-menu-item hover-effect" />
+        </el-tooltip>
+
+        <el-tooltip content="通知中心" effect="dark" placement="bottom">
+          <notice class="right-menu-item" />
         </el-tooltip>
 
       </template>
@@ -50,6 +54,7 @@ import ErrorLog from '@/components/ErrorLog'
 import Screenfull from '@/components/Screenfull'
 import SizeSelect from '@/components/SizeSelect'
 import Search from '@/components/HeaderSearch'
+import Notice from '@/components/Notice'
 
 export default {
   components: {
@@ -58,7 +63,8 @@ export default {
     ErrorLog,
     Screenfull,
     SizeSelect,
-    Search
+    Search,
+    Notice
   },
   computed: {
     ...mapGetters([
